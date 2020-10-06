@@ -1,0 +1,45 @@
+{
+  "dependencies": {
+    "express": "^4.17.1",
+    "twitchpackets": "^1.2.0"
+  },
+  "name": "DawnOfTheDeaddie",
+  "version": "1.0.0",
+  "main": "main.js",
+  "description": "Moon2 Game Jam",
+  "repository": "git@github.com:Ekuju/Moon2Jam.git",
+  "author": "Kuju",
+  "license": "MIT",
+  "build": {
+    "productName": "Game",
+    "appId": "com.websitename.app",
+    "win": {
+      "target": [
+        "portable"
+      ]
+    },
+    "portable": {
+      "artifactName": "dawnofthedeaddie.exe"
+    },
+    "directories": {
+      "output": "output",
+      "app": ".",
+      "buildResources": "public/"
+    },
+    "files": [
+      "public/",
+      "main.js"
+    ]
+  },
+  "scripts": {
+    "server": "node Server.js",
+    "start": "set NODE_ENV=dev && electron .",
+    "deploy": "electron-builder",
+    "pm2server": "pm2 start Server.js -i 1",
+    "pm2restart": "pm2 restart all"
+  },
+  "devDependencies": {
+    "electron": "^9.0.0",
+    "electron-builder": "^22.7.0"
+  }
+}

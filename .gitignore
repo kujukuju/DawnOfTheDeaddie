@@ -1,0 +1,5 @@
+node_modules/
+output/
+yarn-error.log
+.idea/
+secrets/
