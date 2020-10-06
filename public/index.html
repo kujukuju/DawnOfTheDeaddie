@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Moon2GameJam</title>
+
+    <script>
+        const MOBILE = (typeof window.orientation !== 'undefined') || (navigator.userAgent.indexOf('IEMobile') !== -1);
+
+        const search = window.location.search.substring(1);
+        const parts = search.split('&');
+        const keyValueMap = {};
+        parts.forEach(part => {
+            const partParts = part.split('=');
+            keyValueMap[partParts[0]] = partParts[1];
+        });
+
+        const USERNAME = keyValueMap['username'] || 'hfgsads';
+        const REFRESH = keyValueMap['refresh'] || 'redacted';
+        console.log('Username: ' + USERNAME);
+    </script>
+
+    <script type="text/javascript" src="libs/hermite.js"></script>
+    <script type="text/javascript" src="libs/howler.js"></script>
+    <script type="text/javascript" src="libs/pixi.js"></script>
+    <script type="text/javascript" src="libs/polygonmath.js"></script>
+    <script type="text/javascript" src="libs/twitchpackets.js"></script>
+
+    <script type="text/javascript" src="src/Entity.js"></script>
+    <script type="text/javascript" src="src/Eddie.js"></script>
+    <script type="text/javascript" src="src/Moonrat.js"></script>
+
+    <script type="text/javascript" src="src/abilities/Ability.js"></script>
+    <script type="text/javascript" src="src/abilities/Claw.js"></script>
+    <script type="text/javascript" src="src/abilities/Dash.js"></script>
+    <script type="text/javascript" src="src/abilities/FireBreath.js"></script>
+    <script type="text/javascript" src="src/abilities/FireParticle.js"></script>
+    <script type="text/javascript" src="src/abilities/GroundHolyAttack.js"></script>
+    <script type="text/javascript" src="src/abilities/GroundSlam.js"></script>
+    <script type="text/javascript" src="src/abilities/GroundSlamKnockbackEffect.js"></script>
+    <script type="text/javascript" src="src/abilities/GroundSlamParticle.js"></script>
+    <script type="text/javascript" src="src/abilities/GroundSpit.js"></script>
+    <script type="text/javascript" src="src/abilities/HolyAttack.js"></script>
+    <script type="text/javascript" src="src/abilities/KnockbackEffect.js"></script>
+    <script type="text/javascript" src="src/abilities/PounceAttack.js"></script>
+    <script type="text/javascript" src="src/abilities/SpitAttack.js"></script>
+    <script type="text/javascript" src="src/abilities/TankAttack.js"></script>
+    <script type="text/javascript" src="src/abilities/VisualFireParticle.js"></script>
+
+    <script type="text/javascript" src="src/AbilityManager.js"></script>
+    <script type="text/javascript" src="src/ArrowManager.js"></script>
+    <script type="text/javascript" src="src/AudioSystem.js"></script>
+    <script type="text/javascript" src="src/Camera.js"></script>
+    <script type="text/javascript" src="src/Connection.js"></script>
+    <script type="text/javascript" src="src/CooldownManager.js"></script>
+    <script type="text/javascript" src="src/CreepyVision.js"></script>
+    <script type="text/javascript" src="src/FogManager.js"></script>
+    <script type="text/javascript" src="src/GravestoneTracker.js"></script>
+    <script type="text/javascript" src="src/InputManager.js"></script>
+    <script type="text/javascript" src="src/Level.js"></script>
+    <script type="text/javascript" src="src/LevelManager.js"></script>
+    <script type="text/javascript" src="src/LogicLoop.js"></script>
+    <script type="text/javascript" src="src/Loop.js"></script>
+    <script type="text/javascript" src="src/MathHelper.js"></script>
+    <script type="text/javascript" src="src/Renderer.js"></script>
+    <script type="text/javascript" src="src/ShadowVision.js"></script>
+    <script type="text/javascript" src="src/StateManager.js"></script>
+    <script type="text/javascript" src="src/TwitchInformation.js"></script>
+    <script type="text/javascript" src="src/WaveSystem.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+    <div class="canvasContainer" id="canvas-container" style="opacity:0;">
+        <div class="connectInfo" style="display:none;" id="connect-info-static">To fight against moonmoon, connect to http://dawnofthedeaddie.com/</div>
+        <div class="healthBar">
+            <img src="assets/healthbar-dead.png" style="z-index: 5;width: 400px;" draggable="false" />
+            <div id="healthbar-container">
+                <img src="assets/healthbar.png" style="z-index: 100;width: 400px;" draggable="false" />
+            </div>
+        </div>
+        <div class="remainingMoonrats" id="remaining-moonrats" style="opacity:0%;">
+            <div class="text">Remaining Moonrats</div>
+            <div class="top" id="remaining-top">12</div>
+            <div class="slash">/</div>
+            <div class="bottom" id="remaining-bottom">24</div>
+        </div>
+    </div>
+    <div class="fullscreenText" id="introduction" style="opacity:0;">
+        <div class="center">
+            <div style="font-size: 72px;">Dawn of the Deaddie</div>
+            <div>is a real time pvp horror game networked through twitch chat. You might experience some lag.</div>
+        </div>
+    </div>
+    <div class="fullscreenText" id="credit" style="opacity:0;">
+        <div class="center">
+            <div>Required credit screen:</div>
+            <div>Game made by Kuju and Liavre.</div>
+            <div>Music credited to Kevin MacLeod.</div>
+        </div>
+        <div class="back">Left arrow key goes back</div>
+    </div>
+    <div class="fullscreenText" id="dotdotdot" style="opacity:0;">
+        <div class="center">
+            <div style="font-size: 72px;">. . .</div>
+        </div>
+        <div class="back">Left arrow key goes back</div>
+    </div>
+    <div class="fullscreenText" id="lore" style="opacity:0;">
+        <div class="center">It was a dark and scary night, the idiot himself sleeping nearby, and eddie knew that he had to protect the idiot who could not protect himself from the oncoming horde of terrors.</div>
+        <div class="back">Left arrow key goes back</div>
+    </div>
+    <div class="fullscreenText" id="ability-intro" style="opacity:0;">
+        <div class="center">
+            <div>Move with WASD.</div>
+            <div>Attack with left click, right click (hold down), Q, and E.</div>
+            <div>Dash with shift.</div>
+            <div>First, take half a minute to learn your abilities.</div>
+        </div>
+        <div class="back">Left arrow key goes back</div>
+    </div>
+    <div class="fullscreenText" id="moonrat-ability-intro" style="opacity:0;">
+        <div class="center">
+            <div>A message to twitch chat:</div>
+            <div>Moonrats monsters can choose between Tankrat, Spitrat, and Pouncerat.</div>
+            <div>Move with WASD.</div>
+            <div>Click to use your one ability.</div>
+            <div>Try to get a good balance of the 3 classes to win the fight.</div>
+        </div>
+        <div class="back">Left arrow key goes back</div>
+    </div>
+    <div class="fullscreenText" id="moonrat-connect-info" style="opacity:0;">
+        <div class="center">To fight against moonmoon, connect to http://dawnofthedeaddie.com/.</div>
+        <div class="back">Left arrow key goes back</div>
+    </div>
+    <div class="fullscreenText" id="next-wave-announcement" style="opacity:0;">
+        <div class="center">
+            <div id="wave-counter" style="font-size:3rem;">Night 1</div>
+            <div>The horde will be released in 20 seconds.</div>
+        </div>
+    </div>
+    <div class="fullscreenText deadScreen" id="dead-screen" style="display:none;opacity:0%;">
+        <div class="center">
+            <div>With the fall of Eddie, moon has succumbed to the inevitability of a gruesome death.</div>
+            <br />
+            <button onclick="window.location.reload();">Live Another Night</button>
+        </div>
+    </div>
+    <div class="fullscreenText winScreen" id="win-screen" style="opacity:0%;">
+        <div class="center">
+            <div id="win-1" class="winText" style="opacity:0%;">And, following the past.</div>
+            <div id="win-2" class="winText" style="opacity:0%;">Eddie has once again saved the idiot.</div>
+            <div id="win-3" class="winText" style="opacity:0%;">Another week of life, given.</div>
+            <div id="win-4" class="winText" style="opacity:0%;">Another week of ignorance.</div>
+            <div id="win-5" class="winText" style="opacity:0%;">Not a shred of solidarity to ease the monumental responsibilities of night.</div>
+            <br />
+            <button class="winText" onclick="StateManager.winContinue();" id="win-6" style="opacity:0%;">Continue The Brave Fight</button>
+        </div>
+    </div>
+    <div class="plebChooser" id="pleb-chooser" style="display:none;">
+        <div class="plebImage">
+            <img class="plebImage" src="assets/tankrat/Titan.png" id="tankrat-button" draggable="false" />
+        </div>
+        <div class="plebImage">
+            <img class="plebImage" src="assets/spitrat/Bones.png" id="spitrat-button" draggable="false" />
+        </div>
+        <div class="plebImage">
+            <img class="plebImage" src="assets/hoodrat/Feral.png" id="pouncerat-button" draggable="false" />
+        </div>
+    </div>
+    <div class="clickPlease" id="click-please" style="display:none;">
+        <div>Please click to focus the game and continue.</div>
+    </div>
+</body>
+<script>
+    if (!Connection.isEddie()) {
+        if (USERNAME) {
+            // dont let them sit in this page if they have a key so you cant have 2 people playing at once
+            const reloadIfTooLong = setTimeout(() => {
+                window.location.reload();
+            }, 6000);
+
+            document.getElementById('click-please').style.display = 'block';
+            document.getElementById('click-please').addEventListener('click', () => {
+                document.getElementById('click-please').style.display = 'none';
+                clearTimeout(reloadIfTooLong);
+                onload();
+            });
+        }
+    } else {
+        window.onload = onload;
+    }
+</script>
+<script>
+    if (MOBILE) {
+        document.body.innerHTML = '<div style="background-color:#000000;position:fixed;top:50%;left:0;width:100%;text-align:center;font-size:2vw;">You must play on a computer.</div>';
+    }
+    if (!USERNAME) {
+        document.body.innerHTML = '<div style="background-color:#000000;position:fixed;top:50%;left:0;width:100%;text-align:center;font-size:2vw;">You\'re in queue. Please wait.<br /><br />(Don\'t refresh the page.)</div>';
+        setTimeout(() => {
+            window.location.reload();
+        }, 20000 + Math.random() * 10000);
+    }
+</script>
+</html>
