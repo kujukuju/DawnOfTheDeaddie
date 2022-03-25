@@ -39,7 +39,7 @@
     "pm2restart": "pm2 restart all"
   },
   "devDependencies": {
-    "electron": "^9.0.0",
+    "electron": "^13.6.6",
     "electron-builder": "^22.7.0"
   }
 }
